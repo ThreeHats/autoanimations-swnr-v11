@@ -1,5 +1,5 @@
 {
-  "name": "autoanimations",
+  "name": "autoanimations-swnr-v11",
   "description": "This will automatically run most JB2A Animations such as Melee/Ranged Attacks, Spell Attacks, and Instant Spells.",
   "license": "MIT",
   "private": true,
@@ -7,7 +7,8 @@
   "author": "Otigon (https://github.com/otigon)",
   "contributors": [
     "Otigon (https://github.com/otigon)",
-    "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)"
+    "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)",
+    "Three Hats (https://github.com/ThreeHats)"
   ],
   "imports": {
     "#runtime/*": "@typhonjs-fvtt/runtime/*",
