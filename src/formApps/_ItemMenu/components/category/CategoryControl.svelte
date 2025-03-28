@@ -1,15 +1,17 @@
 <script>
-  //import CategoryControl      from "./CategoryControl.svelte";
-  import { ripple } from "@typhonjs-fvtt/svelte-standard/action";
-  import { localize } from "@typhonjs-fvtt/runtime/svelte/helper";
-  import { getContext } from "svelte";
-  import { setContext } from "svelte";
-
   import {
-    TJSMenu,
-    TJSToggleIconButton,
-  } from "@typhonjs-fvtt/svelte-standard/component";
+    getContext,
+    setContext }                  from "svelte";
 
+  import { localize }             from "#runtime/util/i18n";
+
+  import { ripple }               from "#standard/action/animate/composable";
+
+  import { TJSToggleIconButton }  from "#standard/component/button";
+
+  import { TJSMenu }              from "#standard/component/menu";
+
+  //import CategoryControl      from "./CategoryControl.svelte";
 
   import CategoryList from "./CategoryList.svelte";
   import Slider from "../../../Menus/Components/options/inputComponents/Slider.svelte";
@@ -38,6 +40,7 @@
     templatefx: game.settings.get("autoanimations", "aaAutorec-templatefx"),
     aura: game.settings.get("autoanimations", "aaAutorec-aura"),
     preset: game.settings.get("autoanimations", "aaAutorec-preset"),
+    aefx: game.settings.get("autoanimations", "aaAutorec-aefx"),
   };
 
   // Applies flags on Item Update wihtout Closing APP
@@ -55,7 +58,9 @@
 
   //Check the Autorec Menu for a matching Section
   let filteredSettings = AAAutorecFunctions.sortAndFilterMenus(autorecSettings)
-  $: isInAutorec = AAAutorecFunctions.allMenuSearch(filteredSettings, AAAutorecFunctions.rinseName($animation.label));
+  $: isInAutorec = AAAutorecFunctions.allMenuSearch(filteredSettings, AAAutorecFunctions.rinseName($animation.label), $animation.label);
+  //let filteredSettings = AAAutorecFunctions.sortAndFilterAllMenus(autorecSettings)
+  $: isInAEAutorec =  AAAutorecFunctions.singleMenuSearch(autorecSettings.aefx, AAAutorecFunctions.rinseName($animation.label), $animation.label);
 
   let menu = isInAutorec
     ? game.i18n.localize(`autoanimations.animTypes.${isInAutorec.menu}`)
@@ -78,9 +83,9 @@
     efx: ripple(),
     title: "Copy To/From",
     styles: { "margin-left": "0.5em" },
-    onClickPropagate: false, // Necessary to capture click for Firefox.
+    clickPropagate: false, // Necessary to capture click for Firefox.
   };
-  
+
   const subMenu = {
     items: copyToFrom(animation, item, autorecSettings),
   };
@@ -105,13 +110,21 @@
     </div>
     <div
       style="grid-row: 1 / 2; grid-column: 2/3;"
-      class="autorecLabel {isInAutorec ? 'aa-bgGreen' : 'aa-bgRed'} {!isEnabled
+      class="autorecLabel {isInAutorec || isInAEAutorec ? 'aa-bgGreen' : 'aa-bgRed'} {!isEnabled
         ? 'aa-disableOpacity'
         : ''}"
     >
-      {#if isInAutorec}
+      {#if isInAutorec && isInAEAutorec}
+        <label for="" style="font-size: 15px; font-weight:bold">
+          {localize('autoanimations.menus.globalFound')} + {localize('autoanimations.menus.activeEffect')} <br />
+        </label>
+      {:else if isInAutorec}
         <label for="" style="font-size: 15px; font-weight:bold">
           {localize('autoanimations.menus.globalFound')} <br />
+        </label>
+      {:else if isInAEAutorec}
+        <label for="" style="font-size: 15px; font-weight:bold">
+          {localize('autoanimations.menus.activeEffect')} {localize('autoanimations.menus.matchFound')} <br />
         </label>
       {:else}
         <label for="" style="font-size: 15px; font-weight:bold">
@@ -138,6 +151,7 @@
       <select bind:value={$animation.menu} on:change={async () => {
             await animation.switchVideo();
             chosenMenu = $animation.menu;
+            animation.deleteOld();
           }
         }>
         <option value="melee"
@@ -165,7 +179,7 @@
 <main>
   {#if !menuType || !isEnabled || !isCustomized}
     <div class="sectionBorder">
-      <svelte:component this={NoneChosen} {isEnabled} {isCustomized} {isInAutorec} />
+      <svelte:component this={NoneChosen} {isEnabled} {isCustomized} {isInAutorec} {isInAEAutorec}/>
     </div>
   {:else}
     <CategoryList  {chosenMenu} />

@@ -1,7 +1,11 @@
 <script>
-    import { localize } from "@typhonjs-fvtt/runtime/svelte/helper";
-    import { TJSSvgFolder } from "@typhonjs-fvtt/svelte-standard/component";
     import { getContext }   from "svelte";
+
+    import { localize } from "#runtime/util/i18n";
+
+    import { TJSSvgFolder } from "#standard/component/folder";
+
+    import { gameSettings } from "#gameSettings";
 
     //export let animation;
     //export let category;
@@ -10,6 +14,11 @@
     //export let idx;
 
     let { animation, category, idx } = getContext('animation-data');
+
+    /**
+     * Game setting store to control folder animation.
+     */
+    const uiAnimation = gameSettings.getStore('uiAnimation');
 
     // If the Sound object was not set, set it now
     if (!$animation[section][section02].sound) {
@@ -44,9 +53,11 @@
     <TJSSvgFolder
         {folder}
         label={localize("autoanimations.menus.sound")}
+        animate={$uiAnimation}
     >
         <div slot="summary-end">
             <input
+                on:click|stopPropagation
                 type="checkbox"
                 style="align-self:center"
                 title="Toggle Sound On/Off"
@@ -58,7 +69,7 @@
             <div class="aa-Sound-container">
                 <div style="grid-row: 1/2; grid-column: 1/2">
                         <i
-                            class="fas fa-music aa-blue {isValid ? "" : "aa-disableOpacity"}"
+                            class={`fas fa-music aa-blue ${isValid ? "" : "aa-disableOpacity"}`}
                             style="font-size: 1.5em;"
                             title="Play Sound"
                             on:click={() => category.playSound(animation._data[section][section02].sound)}

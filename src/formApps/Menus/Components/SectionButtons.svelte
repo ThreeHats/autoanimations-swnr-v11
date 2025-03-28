@@ -1,5 +1,5 @@
 <script>
-    import { localize } from "@typhonjs-fvtt/runtime/svelte/helper";
+    import { localize } from "#runtime/util/i18n";
     import { getContext }   from "svelte";
 
     import { currentStore } from "./videoPreview/previewStore.js";
@@ -16,6 +16,8 @@
     $: currentIDX = category.stores.videoIDX;
 
     //$: currentCategory = category.stores.currentCategory;
+
+    let canvas3dActive = game.modules.get("levels-3d-preview")?.active ? "" : "aa-disableOpacity";
 
     async function seePreview() {
         if (type === "item") {
@@ -40,7 +42,7 @@
             <i class="fas fa-film fa-lg aa-zoom" />
         </label>
     </div>
-    <div style="grid-row:1/2; grid-column:2/3" class="sectionButton">
+    <div style="grid-row:1/2; grid-column:2/3" class="sectionButton {canvas3dActive}">
         <label for="" on:click={() => (show3d = !show3d)} role=presentation
             >{localize("autoanimations.menus.3dcanvas")}
             <i

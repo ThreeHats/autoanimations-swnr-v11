@@ -1,18 +1,27 @@
 <script>
-    import { localize } from "@typhonjs-fvtt/runtime/svelte/helper";
+    import { getContext }       from "svelte";
 
-    import { TJSSvgFolder, TJSIconButton } from "@typhonjs-fvtt/svelte-standard/component";
+    import { localize }         from "#runtime/util/i18n";
 
-    import NumberInput      from "./inputComponents/NumberInput.svelte";
-    import Elevation        from "./inputComponents/Elevation.svelte";
-    import ScaleRadius      from "./inputComponents/ScaleRadius.svelte";
-    import Opacity          from "./inputComponents/Opacity.svelte";
-    import OptionsDialog    from "./optionsInfoDialog.js";
-    import WaitDelay        from "./inputComponents/WaitDelay.svelte";
-    import { getContext }   from "svelte";
+    import { TJSIconButton }    from "#standard/component/button";
+    import { TJSSvgFolder }     from "#standard/component/folder";
+
+    import NumberInput          from "./inputComponents/NumberInput.svelte";
+    import Elevation            from "./inputComponents/Elevation.svelte";
+    import ScaleRadius          from "./inputComponents/ScaleRadius.svelte";
+    import Opacity              from "./inputComponents/Opacity.svelte";
+    import OptionsDialog        from "./optionsInfoDialog.js";
+    import WaitDelay            from "./inputComponents/WaitDelay.svelte";
+
+    import { gameSettings }     from "#gameSettings";
 
     //export let animation;
     let { animation} = getContext('animation-data');
+
+    /**
+     * Game setting store to control folder animation.
+     */
+    const uiAnimation = gameSettings.getStore('uiAnimation');
 
     const folder = {
         styles: {
@@ -34,14 +43,14 @@
             bottom: "-2px",
             color: "rgba(50, 79, 245, 0.5)"
         },
-        onClickPropagate: false
+        clickPropagate: false
     }
 
     $: isRadius = $animation.source.options.isRadius;
 </script>
 
 <div class="aa-options-border">
-    <TJSSvgFolder {folder}>
+    <TJSSvgFolder {folder} animate={$uiAnimation}>
         <div slot="summary-end">
             <TJSIconButton button={optionsInfo} on:click={() => OptionsDialog.show("ontoken")}/>
         </div>
@@ -114,7 +123,7 @@
                 </td>
                 <td>
                     <!--Add Token Width-->
-                    <div class="{isRadius ? "" : "aa-disableOpacity"}">
+                    <div class={isRadius ? "" : "aa-disableOpacity"}>
                         <label for="SWidth {animation._data.id}"
                             >{localize("autoanimations.menus.add")}
                             {localize("autoanimations.menus.token")}
@@ -147,7 +156,7 @@
                 />
                 </td>
                 <td>
-                    <NumberInput 
+                    <NumberInput
                     {animation}
                     label={localize("autoanimations.menus.playbackRate")}
                     section="source"

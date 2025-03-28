@@ -1,14 +1,22 @@
 <script>
-    import { localize } from "@typhonjs-fvtt/runtime/svelte/helper";
+   import { getContext }   from "svelte";
 
-    import { TJSSvgFolder } from "@typhonjs-fvtt/svelte-standard/component";
-    import { getContext }   from "svelte";
+    import { localize } from "#runtime/util/i18n";
+
+    import { TJSSvgFolder } from "#standard/component/folder";
 
     import NumberInput      from "./inputComponents/NumberInput.svelte";
     import Opacity          from "./inputComponents/Opacity.svelte";
 
+   import { gameSettings }  from "#gameSettings";
+
     //export let animation;
     let { animation} = getContext('animation-data');
+
+   /**
+    * Game setting store to control folder animation.
+    */
+   const uiAnimation = gameSettings.getStore('uiAnimation');
 
     const folder = {
         styles: {
@@ -27,7 +35,7 @@
     </script>
 
 <div class="aa-options-border">
-    <TJSSvgFolder {folder}>
+    <TJSSvgFolder {folder} animate={$uiAnimation}>
         <table class="d">
             <tr>
                 <th></th>
@@ -50,7 +58,7 @@
                 <td class={tintEnabled ? "" : "aa-disableOpacity"}>
                     <!--Set Animation Opacity-->
                     <Opacity {animation} label={localize("autoanimations.menus.saturate")} field="tintSaturate" min="-1" max="1"/>
-                </td> 
+                </td>
                 <td class={tintEnabled ? "" : "aa-disableOpacity"}>
                     <div class="flexcol">
                         <input
@@ -68,7 +76,7 @@
                             bind:value={$animation.primary.options.tintColor}
                         />
                     </div>
-                </td>   
+                </td>
             </tr>
         </table>
         <table class="d">
@@ -119,7 +127,7 @@
                     field="breathDuration"
                     step="1"
                 />
-                </td>    
+                </td>
             </tr>
         </table>
         <table class="d">
@@ -169,7 +177,7 @@
                     field="alphaDuration"
                     step="1"
                 />
-                </td>    
+                </td>
             </tr>
         </table>
     </TJSSvgFolder>

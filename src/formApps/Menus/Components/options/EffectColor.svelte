@@ -1,14 +1,24 @@
 <script>
-    import { localize } from "@typhonjs-fvtt/runtime/svelte/helper";
-
-    import { TJSSvgFolder } from "@typhonjs-fvtt/svelte-standard/component";
     import { getContext }   from "svelte";
+
+    import { localize }     from "#runtime/util/i18n";
+
+    import { TJSSvgFolder } from "#standard/component/folder";
 
     import Opacity          from "./inputComponents/Opacity.svelte";
 
+    import { gameSettings } from "#gameSettings";
+
+    export let section = "primary";
+
     //export let animation;
     let { animation } = getContext('animation-data');
-    export let section = "primary";
+
+    /**
+     * Game setting store to control folder animation.
+     */
+    const uiAnimation = gameSettings.getStore('uiAnimation');
+
     const folder = {
         styles: {
             "--tjs-summary-font-family":
@@ -25,17 +35,19 @@
 <div class="aa-effect-border">
     <TJSSvgFolder
         {folder}
-        label={localize("autoanimations.menus.colorTint")} 
+        label={localize("autoanimations.menus.colorTint")}
+        animate={$uiAnimation}
     >
         <div slot="summary-end">
             <input
+                on:click|stopPropagation
                 type="checkbox"
                 style="align-self:center"
                 title="Enable Color Tint"
                 bind:checked={$animation[section].options.tint}
             />
         </div>
-        <table class="d {tintEnabled ? "" : "aa-disableOpacity"}">
+        <table class={`d ${tintEnabled ? "" : "aa-disableOpacity"}`}>
             <tr>
                 <td>
                     <!--Set Animation Opacity-->
@@ -44,7 +56,7 @@
                 <td>
                     <!--Set Animation Opacity-->
                     <Opacity {animation} label={localize("autoanimations.menus.saturation")} field="saturation" min="-1" max="1" placeDefault=0 {section}/>
-                </td> 
+                </td>
                 <td>
                     <div class="flexcol">
                         <input
@@ -62,7 +74,7 @@
                             bind:value={$animation[section].options.tintColor}
                         />
                     </div>
-                </td>   
+                </td>
             </tr>
         </table>
     </TJSSvgFolder>

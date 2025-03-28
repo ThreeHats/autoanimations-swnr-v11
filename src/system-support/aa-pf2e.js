@@ -14,8 +14,13 @@ const PF2E_SIZE_TO_REACH = {
 
 export function systemHooks() {
     Hooks.on("createChatMessage", async (msg) => {
-        if (msg.user.id !== game.user.id) { return };
+        if (msg.author.id !== game.user.id) { return };
         const playOnDmg = game.settings.get("autoanimations", "playonDamageCore")
+        if (msg.flags.pf2e?.context?.type === "damage-taken") {
+            // This can be removed if later A-A can differentiate animations on the same item. I guess.
+            debug ("Caught a damage-taken message thats not meant to be animated, exiting main workflow")
+            return;
+        }
         let compiledData = await getRequiredData({
             item: msg.item,
             itemId: msg.flags.pf2e?.origin?.uuid,
@@ -39,34 +44,46 @@ export function systemHooks() {
     });
     Hooks.on("createMeasuredTemplate", async (template, data, userId) => {
         if (userId !== game.user.id) { return };
-        templateAnimation(await getRequiredData({
+        let compiledData = await getRequiredData({
             itemUuid: template.flags?.pf2e?.origin?.uuid,
             templateData: template,
             workflow: template,
             isTemplate: true
-        }))
+        })
+        // pf2e v5 includes on item getter on templates which handles variants
+        if (template.item) compiledData.item = template.item
+
+        templateAnimation(compiledData)
     })
 }
 
 async function templateAnimation(input) {
     debug("Template placed, checking for animations")
-    if (!input.item) { 
+    if (!input.item) {
         debug("No Item could be found")
         return;
     }
-    // Spell variants can be identified by the template name
-    const templateName = input.templateData.flags?.pf2e?.origin?.name
-    // If item and template name differ, the variant spell can be created by applying the variants overlay
-    if (templateName && input.item.name !== templateName) {
-        // Search for the variant overlay by name
-        const overlayId = input.item.overlays.find(o => o.name == templateName)?._id
-        if (overlayId) {
-            input.item = input.item.loadVariant({ overlayIds: [overlayId] })
-            input.isVariant = true;
-            input.originalItem = input.item?.original;
+    if (foundry.utils.isNewerVersion(game.system.version, "5")) {
+        if (input.item.isVariant) {
+            input.isVariant = true
+            input.originalItem = input.item.original
         }
     }
-    
+    else {
+        // Spell variants can be identified by the template name
+        const templateName = input.templateData.flags?.pf2e?.origin?.name
+        // If item and template name differ, the variant spell can be created by applying the variants overlay
+        if (templateName && input.item.name !== templateName) {
+            // Search for the variant overlay by name
+            const overlayId = input.item.overlays.find(o => o.name == templateName)?._id
+            if (overlayId) {
+                input.item = input.item.loadVariant({ overlayIds: [overlayId] })
+                input.isVariant = true;
+                input.originalItem = input.item?.original;
+            }
+        }
+    }
+
     const handler = await AAHandler.make(input)
     trafficCop(handler)
 }
@@ -86,7 +103,7 @@ async function runPF2e(data) {
             if (!data.workflow.isRoll) { return; }
             runPF2eWeapons(data)
             break;
-        case "consumable": 
+        case "consumable":
             playPF2e(data)
             break;
         default:
@@ -139,9 +156,22 @@ async function runPF2eSpells(data) {
     const msg = data.workflow;
     const item = data.item;
     const playOnDamage = data.playOnDamage;
-    const isDamageRoll = msg.isDamageRoll;
-    const hasAttack = spellHasAttack(item);
-    const spellType = getSpellType(item);
+    let spellType = getSpellType(item);
+
+    if (item.isVariant) {
+        data.isVariant = true
+        data.originalItem = item.original;
+    }
+
+    if (foundry.utils.isNewerVersion(game.system.version, "5.8.3")) {
+        // pf2e 5.9 removes spellType
+        if (item.system.traits.value.includes("healing"))
+            spellType = "heal"
+        else if (item.system.traits.value.includes("attack"))
+            spellType = "attack"
+        else
+            spellType = "save"
+    }
 
     switch (spellType) {
         case "utility":
@@ -171,7 +201,7 @@ async function runPF2eSpells(data) {
     }
 }
 async function playPF2e(input) {
-    if (!input.item) { 
+    if (!input.item) {
         debug("No Item could be found")
         return;
     }
@@ -190,16 +220,16 @@ async function playPF2e(input) {
     trafficCop(handler);
 }
 /**
- * 
- * @param {Object} item 
+ *
+ * @param {Object} item
  * @returns {String} spell || focus || ritual
  */
  function getSpellCategory(item) {
     return item.system.category.value;
 }
 /**
- * 
- * @param {Object} item 
+ *
+ * @param {Object} item
  * @returns {String} utility || save || heal || attack
  */
 function getSpellType(item) {
@@ -222,7 +252,7 @@ function findAttackOnItem(item) {
         case "ritual":
             return spellHasAttack(item)
 
-             
+
     }
 }
 
@@ -235,13 +265,17 @@ function findDamageOnItem(item) {
 }
 
 function itemHasDamage(item) {
-    let damage = item.system?.damage?.value || item.system?.damageRolls || {};
+    let damage =
+        item.system?.damage?.value // before pf2e 5.9 spell damage
+        || item.system?.damage // 5.9 spell damage
+        || item.system?.damageRolls // strike damage
+        || {};
     return Object.keys(damage).length
 }
 
 /**
- * 
- * @param {Object} item 
+ *
+ * @param {Object} item
  * @returns {String} Weapon's base type
  */
 function getWeaponBaseType(item) {

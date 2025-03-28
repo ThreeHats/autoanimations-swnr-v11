@@ -1,7 +1,9 @@
 <script>
-    import { localize } from "@typhonjs-fvtt/runtime/svelte/helper";
-    import { TJSSvgFolder } from "@typhonjs-fvtt/svelte-standard/component";
     import { getContext }   from "svelte";
+
+    import { localize }     from "#runtime/util/i18n";
+
+    import { TJSSvgFolder } from "#standard/component/folder";
 
     import VideoSelect      from "../Components/VideoSelect.svelte";
     import Opacity          from "./inputComponents/Opacity.svelte";
@@ -10,11 +12,17 @@
     import ScaleRadius      from "./inputComponents/ScaleRadius.svelte";
     import SoundSettings    from "../Components/SoundSettings.svelte";
 
+    import { gameSettings } from "#gameSettings";
 
     //export let animation;
     //export let category;
     //export let idx;
     let { animation } = getContext('animation-data');
+
+    /**
+     * Game setting store to control folder animation.
+     */
+    const uiAnimation = gameSettings.getStore('uiAnimation');
 
     const folder = {
         styles: {
@@ -265,9 +273,10 @@
 </div>
 <SoundSettings section="data" />
 <div class="aa-section-border">
-    <TJSSvgFolder folder={startFolder}>
+    <TJSSvgFolder folder={startFolder} animate={$uiAnimation}>
         <div slot="summary-end">
             <input
+                on:click|stopPropagation
                 type="checkbox"
                 style="align-self:center"
                 title="Toggle Source FX On/Off"
@@ -281,7 +290,7 @@
                 section02="start"
             />
             <div class="aa-options-border">
-                <TJSSvgFolder {folder}>
+                <TJSSvgFolder {folder} animate={$uiAnimation}>
                     <table class="d">
                         <tr>
                             <td>
@@ -393,9 +402,10 @@
     </TJSSvgFolder>
 </div>
 <div class="aa-section-border">
-    <TJSSvgFolder folder={betweenFolder}>
+    <TJSSvgFolder folder={betweenFolder} animate={$uiAnimation}>
         <div slot="summary-end">
             <input
+                on:click|stopPropagation
                 type="checkbox"
                 style="align-self:center"
                 title="Toggle Source FX On/Off"
@@ -411,7 +421,7 @@
                 section02="between"
             />
             <div class="aa-options-border">
-                <TJSSvgFolder {folder}>
+                <TJSSvgFolder {folder} animate={$uiAnimation}>
                     <table class="d">
                         <tr>
                             <td>
@@ -469,9 +479,10 @@
     </TJSSvgFolder>
 </div>
 <div class="aa-section-border">
-    <TJSSvgFolder folder={endFolder}>
+    <TJSSvgFolder folder={endFolder} animate={$uiAnimation}>
         <div slot="summary-end">
             <input
+                on:click|stopPropagation
                 type="checkbox"
                 style="align-self:center"
                 title="Toggle Source FX On/Off"
@@ -485,7 +496,7 @@
                 section02="end"
             />
             <div class="aa-options-border">
-                <TJSSvgFolder {folder}>
+                <TJSSvgFolder {folder} animate={$uiAnimation}>
                     <table class="d">
                         <tr>
                             <td>

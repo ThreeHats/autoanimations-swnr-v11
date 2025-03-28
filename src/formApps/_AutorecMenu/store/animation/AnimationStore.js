@@ -1,8 +1,12 @@
-import { propertyStore } from "@typhonjs-fvtt/runtime/svelte/store";
+import { propertyStore } from "#runtime/svelte/store/writable-derived";
+
+import { FVTTFilePickerControl } from "#standard/application/control/filepicker";
 
 import { CategoryStore } from "../category/CategoryStore.js";
-import { aaSessionStorage } from "../../../../sessionStorage.js";
-import { constants } from "../../../../constants.js";
+
+import { constants } from "#constants";
+import { aaSessionStorage } from "#sessionStorage";
+
 /*
 import {
    aaTypeMenu,
@@ -16,7 +20,7 @@ export class AnimationStore extends CategoryStore.EntryStore {
    /** @type {AnimationPropertyStores} */
    #stores;
 
-   #sessionStorage = {}
+   #sessionStorage = {};
 
    /**
     * @param {object}   data -
@@ -30,22 +34,22 @@ export class AnimationStore extends CategoryStore.EntryStore {
       this.#stores = {
          folderOpen: aaSessionStorage.getStore(this.#sessionStorage.folderOpen, false),
 
-         label: propertyStore(this, 'label'),
+         label: propertyStore(this, "label"),
       };
    }
 
    /**
-    * Invoked by WorldSettingArrayStore to provide custom duplication.
+    * Invoked by WorldArrayObjectStore to provide custom duplication.
     *
     * @param {object}   data - A copy of local data w/ new ID already set.
     *
-    * @param {CategoryStore} categoryStore - The source WorldSettingArrayStore instance.
+    * @param {CategoryStore} categoryStore - The source WorldArrayObjectStore instance.
     */
    static duplicate(data, categoryStore) {
       // Provide a unique label appending an indexed counter.
-      if (typeof data?.label === 'string') {
+      if (typeof data?.label === "string") {
          let cntr = 1;
-         const baseName = data.label ?? '';
+         const baseName = data.label ?? "";
          delete data.metaData;
          do {
             data.label = `${baseName}-${cntr++}`;
@@ -56,7 +60,9 @@ export class AnimationStore extends CategoryStore.EntryStore {
    /**
     * @returns {AnimationPropertyStores}
     */
-   get stores() { return this.#stores; }
+   get stores() {
+      return this.#stores;
+   }
 
    // ----------------------------------------------------------------------------------------------------------------
 
@@ -70,24 +76,32 @@ export class AnimationStore extends CategoryStore.EntryStore {
    /**
     * @returns {string}
     */
-   get label() { return this._data.label ?? ''; }
+   get label() {
+      return this._data.label ?? "";
+   }
 
    /**
     * @param {boolean}  folderOpen - Sets folder opened state.
     */
-   set folderState(folderOpen) { this.#stores.folderOpen.set(folderOpen); }
+   set folderState(folderOpen) {
+      this.#stores.folderOpen.set(folderOpen);
+   }
 
    /**
     * @param {string} label -
     */
-   set label(label) { this.#stores.label.set(label); }
+   set label(label) {
+      this.#stores.label.set(label);
+   }
 
    /**
     * @param {object}   data -
     */
    set(data) {
       if (data.label !== void 0) {
-         if (typeof data.label !== 'string') { throw new TypeError(`'data.label' is not a string.`); }
+         if (typeof data.label !== "string") {
+            throw new TypeError(`'data.label' is not a string.`);
+         }
          this._data.label = data.label;
       }
 
@@ -96,46 +110,43 @@ export class AnimationStore extends CategoryStore.EntryStore {
 
    async selectCustom(section, section02 = "video") {
       const current = this._data[section][section02].customPath;
-      const picker = new FilePicker({
+
+      const path = await FVTTFilePickerControl.browse({
+         modal: false,
          type: "imagevideo",
          current,
-         callback: (path) => {
-            this._data[section][section02].customPath = path;
-            this._updateSubscribers()
-            },
       });
-      setTimeout(() => {
-         picker.element[0].style.zIndex = `${Number.MAX_SAFE_INTEGER}`;
-      }, 100);
-      await picker.browse(current);
 
+      if (path) {
+         this._data[section][section02].customPath = path;
+         this._updateSubscribers();
+      }
    }
 
    async selectSound(section) {
       const current = this._data[section].sound.file;
-      const picker = new FilePicker({
-          type: "audio",
-          current,
-          callback: (path) => {
-            this._data[section].sound.file = path;
-            this._updateSubscribers()
-            },
-      });
-      setTimeout(() => {
-          picker.element[0].style.zIndex = `${Number.MAX_SAFE_INTEGER}`;
-      }, 100);
-      await picker.browse(current);
-  }
 
-  async getSource() {
+      const path = await FVTTFilePickerControl.browse({
+         modal: false,
+         type: "audio",
+         current,
+      });
+
+      if (path) {
+         this._data[section].sound.file = path;
+         this._updateSubscribers();
+      }
+   }
+
+   async getSource() {
       if (!this._data.metaData) {
-         ui.notifications.info(`Automated Animations | No Defined MetaData on this Entry`)
+         ui.notifications.info(`Automated Animations | No Defined MetaData on this Entry`);
       } else {
          console.log(this._data.metaData);
          ui.notifications.info("Automated Animations | MetaData logged to Dev Console");
-         Hooks.callAll("AutomatedAnimations.metaData", this._data)
+         Hooks.callAll("AutomatedAnimations.metaData", this._data);
       }
-  }
+   }
 }
 
 /**

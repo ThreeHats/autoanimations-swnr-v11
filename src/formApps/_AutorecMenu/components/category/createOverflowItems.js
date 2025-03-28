@@ -1,4 +1,4 @@
-import { TJSDialog } from "@typhonjs-fvtt/runtime/svelte/application";
+import { TJSDialog } from "#runtime/svelte/application";
 
 /**
  * Creates the items for the overflow menu.
@@ -7,8 +7,7 @@ import { TJSDialog } from "@typhonjs-fvtt/runtime/svelte/application";
  *
  * @returns {object[]} Overflow menu items.
  */
-export function createOverflowItems(category)
-{
+export function createOverflowItems(category) {
    return [
       {
          label: "Delete All", // TODO: localize,
@@ -18,11 +17,13 @@ export function createOverflowItems(category)
                title: "Delete All Animations?",
                content: `Are you sure you want to delete all animations from '${category.label}'?`,
                draggable: false,
-               modal: true
-            })
+               modal: false,
+            });
 
-            if (result) { category.clearEntries(); }
-         }
-      }
+            if (result) {
+               category.clearEntries();
+            }
+         },
+      },
    ];
 }

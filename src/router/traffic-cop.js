@@ -13,7 +13,7 @@ export async function trafficCop(handler) {
         if (AAAutorecFunctions.checkExcludedProperty(handler.item, data.advanced?.excludedType?.property, data.advanced?.excludedType?.path)) {
             return;
         }
-    } 
+    }
     Hooks.callAll("aa.preDataSanitize", handler, data);
 
     const sanitizedData = await DataSanitizer._getAnimationData(handler, data);
@@ -30,9 +30,7 @@ export async function trafficCop(handler) {
             switch (game.system.id) {
                 case "a5e":
                 case "sw5e":
-                case "dnd4e":
                 case "tormenta20":
-                case "swade":
                     aaTemplateHook = Hooks.once("createMeasuredTemplate", async (template) => {
                         //Hooks.callAll("aa.preAnimationStart", sanitizedData, data);
                         await wait(500)
@@ -87,7 +85,7 @@ export async function trafficCop(handler) {
     const targets = handler.allTargets?.length;
 
     if (animationType === "templatefx" || animationType === "proToTemp") {
-        if (animationType === "proToTemp" && !handler.sourceToken) { 
+        if (animationType === "proToTemp" && !handler.sourceToken) {
             debug("Failed to initialize a Source Token")
             return;
         }
@@ -100,10 +98,22 @@ export async function trafficCop(handler) {
         // In place specifically for using Warpgate to spawn a Template thru a Macro
         if (sanitizedData?.macro && sanitizedData?.macro?.args?.warpgateTemplate) {
             // Play Macro if it is for using Crosshairs to create a Template
-            new Sequence()
-                .macro(sanitizedData.macro.name, handler.workflow, handler, sanitizedData.macro.args)
-                .play()
-                aaTemplateHook = Hooks.once("createMeasuredTemplate", async (template) => {
+            if (foundry.utils.isNewerVersion(game.version, 11)) {
+                new Sequence()
+                    .macro(sanitizedData.macro.name, { args: [handler.workflow, handler, sanitizedData.macro.args] })
+                    .play()
+            } else {
+                if (game.modules.get("advanced-macros")?.active) {
+                    new Sequence()
+                        .macro(sanitizedData.macro.name, handler.workflow, handler, sanitizedData.macro.args)
+                        .play()
+                } else {
+                    new Sequence()
+                        .macro(sanitizedData.macro.name)
+                        .play()
+                }
+            }
+            aaTemplateHook = Hooks.once("createMeasuredTemplate", async (template) => {
                 await wait(500)
                 animate[animationType](handler, sanitizedData, template);
             });
@@ -115,9 +125,7 @@ export async function trafficCop(handler) {
             case "a5e":
             case "pf2e":
             case "sw5e":
-            case "dnd4e":
             case "tormenta20":
-            case "swade":
                 aaTemplateHook = Hooks.once("createMeasuredTemplate", async (template) => {
                     //Hooks.callAll("aa.preAnimationStart", sanitizedData, data);
                     await wait(500)
@@ -128,7 +136,7 @@ export async function trafficCop(handler) {
             default:
                 await wait(500)
                 let template = canvas.templates?.placeables?.[canvas.templates.placeables.length - 1]?.document
-                if (!template) { 
+                if (!template) {
                     debug("No template found for the Template animaiton, existing early")
                     return;
                 }

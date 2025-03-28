@@ -1,8 +1,8 @@
 <script>
-    import { getContext}        from "svelte";
+    import { getContext }        from "svelte";
 
     import { AAAutorecFunctions } from "../../../../aa-classes/aaAutorecFunctions.js";
-    import { localize } from "@typhonjs-fvtt/runtime/svelte/helper";
+    import { localize } from "#runtime/util/i18n";
 
     export let animation;
     export let item;
@@ -64,7 +64,7 @@
 {/if}
 
     <button
-        class="aa-copySubmitButton {checkAutorec ? "aa-disableOpacity" : ""}"
+        class={`aa-copySubmitButton ${checkAutorec ? "aa-disableOpacity" : ""}`}
         on:click={() => submitNewEntry(nameToAdd)}
     >Submit</button>
 </div>

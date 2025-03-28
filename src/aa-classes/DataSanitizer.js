@@ -33,7 +33,7 @@ export class DataSanitizer {
             enable: macro.enable ?? false,
             name: isItemMacro ? itemMacro : macro.name,
             args: this.strToObj(macro.args),
-            playWhen: macro.playWhen ?? "0",    
+            playWhen: macro.playWhen ?? "0",
         }
         return data;
     }
@@ -68,7 +68,7 @@ export class DataSanitizer {
             repeatDelay: data.repeatDelay ?? 250,
         }
         if (!input.enable || !input.file) { return false }
-        let soundSeq = new Sequence()
+        let soundSeq = new Sequence({moduleName: "Automated Animations", softFail: !game.settings.get("autoanimations", "debug")})
         let section = soundSeq.sound()
         section.file(input.file)
         section.delay(input.delay + addDelay)
@@ -98,7 +98,7 @@ export class DataSanitizer {
             options: this.setPrimaryOptions(options, menu, handler),
             //sound: this.setSound(sound),
         }
-        let addSoundDelay = 0; 
+        let addSoundDelay = 0;
         if (!data.options.isWait) {
             addSoundDelay = data.options.delay;
         }
@@ -110,7 +110,7 @@ export class DataSanitizer {
 
         let truePathRequired = ['static', 'templatefx'];
         let returnable = ['melee', 'range'];
-        console.log(returnable.some(el => el === data.dbSection))
+
         data.path = await buildFile(data.video.dbSection, data.video, data.video.customPath, {getTruePath: truePathRequired.some(el => el === data.video.dbSection), isReturnable: returnable.some(el => el === data.video.dbSection)})
         return data;
     }
@@ -236,6 +236,7 @@ export class DataSanitizer {
                     tintColor: data.tintColor || "#FFFFFF",
                     scaleX: data.scaleX || 1,
                     scaleY: data.scaleY || 1,
+                    xray: data.xray ?? false,
                     zIndex: data.zIndex || 1,
                 };
             case "aura":
@@ -329,7 +330,7 @@ export class DataSanitizer {
             },
             //sound: this.setSound(sound, topLevel.primary.options),
         }
-        let addSoundDelay = 0; 
+        let addSoundDelay = 0;
         if (!data.options.isWait) {
             addSoundDelay = data.options.delay;
         }
@@ -385,7 +386,7 @@ export class DataSanitizer {
             },
             //sound: this.setSound(sound)
         }
-        let addSoundDelay = 0; 
+        let addSoundDelay = 0;
         if (!data.options.isWait) {
             addSoundDelay = data.options.delay;
         }
@@ -401,7 +402,7 @@ export class DataSanitizer {
         const video = target.video || {};
         const options = target.options || {};
         const sound = target.sound || {};
-    
+
         if (!target.enable) { return false; }
 
         const data = {
@@ -465,7 +466,11 @@ export class DataSanitizer {
         //.scale(targetFX.tFXScale * targetFX.scale)
         targetEffect.size(targetTokenGS * 1.5 * targetFX.options.size, { gridUnits: true })
         targetEffect.repeats(targetFX.options.repeat, targetFX.options.repeatDelay)
-        targetEffect.elevation(targetFX.options.elevation)
+        if (targetFX.options.elevation === 0) {
+            effectAfterImage.belowTokens(true)
+        } else {
+            targetEffect.elevation(targetFX.options.elevation)
+        }
         if (targetFX.options.isMasked) {
             targetEffect.mask(target)
         }
@@ -502,29 +507,33 @@ export class DataSanitizer {
         const tokens = options3d.tokens || {};
 
         const secondary = options3d.secondary || {};
+        const defaults = particleDefaultValues[type] ?? particleDefaultValues["projectile"];
         const data = {
             type: type,
-            alpha: options.alpha ?? particleDefaultValues[type].alpha,
+            alpha: options.alpha ?? defaults.alpha,
             animationType: options.animationType ?? "twirl",
-            arc: options.arc ?? particleDefaultValues[type].arc,
-            color01: options.color01 ?? particleDefaultValues[type].color01,
-            color02: options.color02 ?? particleDefaultValues[type].color02,
-            delay: options.delay ?? particleDefaultValues[type].delay,
-            emittersize: options.emittersize ?? particleDefaultValues[type].emittersize,
-            gravity: options.gravity ?? particleDefaultValues[type].gravity,
-            life: options.life ?? particleDefaultValues[type].life,
-            mass: options.mass ?? particleDefaultValues[type].mass,
+            arc: options.arc ?? defaults.arc,
+            color01: options.color01 ?? defaults.color01,
+            color02: options.color02 ?? defaults.color02,
+            delay: options.delay ?? defaults.delay,
+            emittersize: options.emittersize ?? defaults.emittersize,
+            gravity: options.gravity ?? defaults.gravity,
+            life: options.life ?? defaults.life,
+            duration: options.duration ?? defaults.duration,
+            mass: options.mass ?? defaults.mass,
             playOn: options.playOn ?? "source",
-            rate: options.rate ?? particleDefaultValues[type].rate,
-            repeat: options.repeat ?? particleDefaultValues[type].repeat,
+            rate: options.rate ?? defaults.rate,
+            repeat: options.repeat ?? defaults.repeat,
             resetTime: options.resetTime ?? 100,
             rotateTowards: options.rotateTowards ?? false,
             rotationX: options.rotationX ?? 0,
             rotationY: options.rotationY ?? 0,
             rotationZ: options.rotationZ ?? 0,
-            scale: options.scale ?? particleDefaultValues[type].scale,
-            speed: options.speed ?? particleDefaultValues[type].speed,
-            sprite: options.spritePath ?? particleDefaultValues[type].sprite,
+            scale: options.scale ?? defaults.scale,
+            speed: options.speed ?? defaults.speed,
+            sprite: options.spritePath ?? defaults.sprite,
+            autoSize: options.autoSize ?? defaults.autoSize,
+            onCenter: options.onCenter ?? defaults.onCenter,
             sound: this.setSound(options3d.sound),
             tokenAnimation: {
                 enable: tokens.enable ?? false,
@@ -549,7 +558,10 @@ export class DataSanitizer {
                 rate: secondary.data?.rate ?? 10,
                 scale: secondary.data?.scale ?? 1,
                 speed: secondary.data?.speed ?? 1,
-                type: "explosion",
+                autoSize: secondary.data?.autoSize ?? false,
+                onCenter: secondary.data?.onCenter ?? false,
+                duration: secondary.data?.duration ?? 3000,
+                type: secondary.data?.type ?? "explosion",
                 sprite: secondary.data?.spritePath ?? particleDefaultValues.explosion.sprite,
             }
         };
@@ -657,10 +669,10 @@ export class DataSanitizer {
                         persistent: afterImageOptions.persistent ?? false,
                         scale: afterImageOptions.scale || 1,
                     }
-                }, 
+                },
                 soundOnly: {
                     enable: false,
-                }    
+                }
             }
             data.projectile.path = await buildFile(data.projectile.dbSection, data.projectile, data.projectile.customPath)
             data.preExplosion.path = await buildFile(data.preExplosion.dbSection, data.preExplosion, data.preExplosion.customPath)
@@ -668,7 +680,7 @@ export class DataSanitizer {
 
             return data;
         }
-        
+
         function teleportation() {
             const flags = topLevel.data || {};
 
@@ -822,7 +834,7 @@ export class DataSanitizer {
             section.repeats(input.repeat, input.repeatDelay)
             return soundSeq;
         }
-    
+
     }
 }
 /*
@@ -849,7 +861,7 @@ function hexToHSL(H) {
         h = 0,
         s = 0,
         l = 0;
-  
+
     if (delta == 0)
       h = 0;
     else if (cmax == r)
@@ -858,17 +870,17 @@ function hexToHSL(H) {
       h = (b - r) / delta + 2;
     else
       h = (r - g) / delta + 4;
-  
+
     h = Math.round(h * 60);
-  
+
     if (h < 0)
       h += 360;
-  
+
     l = (cmax + cmin) / 2;
     s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
     s = +(s * 100).toFixed(1);
     l = +(l * 100).toFixed(1);
-  
+
     return ({h: h, s: s/100, l: l/100})
   }
 */

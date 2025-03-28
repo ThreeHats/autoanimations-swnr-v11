@@ -1,18 +1,28 @@
 <script>
-    import { localize }     from "@typhonjs-fvtt/runtime/svelte/helper";
-    import { TJSSvgFolder, TJSIconButton } from "@typhonjs-fvtt/svelte-standard/component";
-    import { getContext }   from "svelte";
+    import { getContext }       from "svelte";
 
-    import VideoSelect      from "../Components/VideoSelect.svelte";
-    import SoundSettings    from "../Components/SoundSettings.svelte";
-    import Opacity          from "./inputComponents/Opacity02.svelte";
-    import OptionsDialog    from "../Components/options/optionsInfoDialog.js";
-    import Elevation        from "../Components/options/inputComponents/Elevation.svelte";
+    import { localize }         from "#runtime/util/i18n";
+
+    import { TJSIconButton }    from "#standard/component/button";
+    import { TJSSvgFolder }     from "#standard/component/folder";
+
+    import VideoSelect          from "../Components/VideoSelect.svelte";
+    import SoundSettings        from "../Components/SoundSettings.svelte";
+    import Opacity              from "./inputComponents/Opacity02.svelte";
+    import OptionsDialog        from "../Components/options/optionsInfoDialog.js";
+    import Elevation            from "../Components/options/inputComponents/Elevation.svelte";
+
+    import { gameSettings }     from "#gameSettings";
 
     //export let animation;
     //export let category;
     //export let idx;
     let { animation } = getContext('animation-data');
+
+    /**
+     * Game setting store to control folder animation.
+     */
+    const uiAnimation = gameSettings.getStore('uiAnimation');
 
     const folder = {
         styles: {
@@ -42,7 +52,7 @@
 <div class="aa-section-border">
     <VideoSelect title="Dual Attach" section="data" />
     <div class="aa-options-border">
-        <TJSSvgFolder {folder}>
+        <TJSSvgFolder {folder} animate={$uiAnimation}>
             <div slot="summary-end">
                 <TJSIconButton button={optionsInfo} on:click={() => OptionsDialog.show("preset", "dualattach")}/>
             </div>
@@ -77,7 +87,7 @@
                     <td />
                     <td>
                         <!--Set Only X Scaling-->
-                        <div class="{!isCustom ? "aa-disableOpacity" : ""}">
+                        <div class={!isCustom ? "aa-disableOpacity" : ""}>
                             <label for="Remove {animation._data.id}"
                                 >{localize("autoanimations.menus.only")} X
                             </label>

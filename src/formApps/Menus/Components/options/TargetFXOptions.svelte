@@ -1,17 +1,26 @@
 <script>
-    import { localize } from "@typhonjs-fvtt/runtime/svelte/helper";
+    import { getContext }       from "svelte";
 
-    import { TJSSvgFolder, TJSIconButton } from "@typhonjs-fvtt/svelte-standard/component";
+    import { localize }         from "#runtime/util/i18n";
 
-    import NumberInput      from "./inputComponents/NumberInput.svelte";
-    import Elevation        from "./inputComponents/Elevation.svelte";
-    import ScaleRadius      from "./inputComponents/ScaleRadius.svelte";
-    import Opacity          from "./inputComponents/Opacity.svelte";
-    import OptionsDialog    from "./optionsInfoDialog.js";
-    import { getContext }   from "svelte";
+    import { TJSIconButton }    from "#standard/component/button";
+    import { TJSSvgFolder }     from "#standard/component/folder";
+
+    import NumberInput          from "./inputComponents/NumberInput.svelte";
+    import Elevation            from "./inputComponents/Elevation.svelte";
+    import ScaleRadius          from "./inputComponents/ScaleRadius.svelte";
+    import Opacity              from "./inputComponents/Opacity.svelte";
+    import OptionsDialog        from "./optionsInfoDialog.js";
+
+    import { gameSettings }     from "#gameSettings";
 
     //export let animation;
     let { animation} = getContext('animation-data');
+
+    /**
+     * Game setting store to control folder animation.
+     */
+    const uiAnimation = gameSettings.getStore('uiAnimation');
 
     const folder = {
         styles: {
@@ -27,13 +36,13 @@
         icon: "fas fa-info-circle",
         title: "autoanimations.menus.quickReference",
         styles: {
-            "--tjs-icon-button-diameter": "1.em",
+            "--tjs-icon-button-diameter": "1em",
             position: "relative",
             left: "10px",
             bottom: "-2px",
             color: "rgba(50, 79, 245, 0.5)"
         },
-        onClickPropagate: false
+        clickPropagate: false
     }
 
     $: persistent = $animation.target.options.persistent;
@@ -41,7 +50,7 @@
 </script>
 
 <div class="aa-options-border">
-    <TJSSvgFolder {folder}>
+    <TJSSvgFolder {folder} animate={$uiAnimation}>
         <div slot="summary-end">
             <TJSIconButton button={optionsInfo} on:click={() => OptionsDialog.show("ontoken")}/>
         </div>
@@ -167,7 +176,7 @@
                 </td>
                 <td>
                     <!--Add Token Width-->
-                    <div class="{isRadius ? "" : "aa-disableOpacity"}">
+                    <div class={isRadius ? "" : "aa-disableOpacity"}>
                         <label for="TWidth {animation._data.id}"
                             >{localize("autoanimations.menus.add")}
                             {localize("autoanimations.menus.token")}
@@ -224,7 +233,7 @@
             </tr>
             <tr>
                 <td>
-                    <NumberInput 
+                    <NumberInput
                     {animation}
                     label={localize("autoanimations.menus.playbackRate")}
                     section="target"

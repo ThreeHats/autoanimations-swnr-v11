@@ -1,18 +1,27 @@
 <script>
-    import { localize } from "@typhonjs-fvtt/runtime/svelte/helper";
-    import { TJSSvgFolder } from "@typhonjs-fvtt/svelte-standard/component";
+    import { getContext }   from "svelte";
+
+    import { localize } from "#runtime/util/i18n";
+
+    import { TJSSvgFolder } from "#standard/component/folder";
 
     import SoundSettings from "./SoundSettings.svelte";
     import VideoSelect from "./VideoSelect.svelte";
     import SecondaryOptions from "./options/SecondaryOptions.svelte";
     import EffectColor from "./options/EffectColor.svelte";
-    import { getContext }   from "svelte";
+
+    import { gameSettings } from "#gameSettings";
 
     //export let animation;
     //export let idx;
     //export let category;
 
     let { animation, category, idx } = getContext('animation-data');
+
+    /**
+     * Game setting store to control folder animation.
+     */
+    const uiAnimation = gameSettings.getStore('uiAnimation');
 
     let title = "Secondary" + " " + game.i18n.localize("autoanimations.menus.animation")
 
@@ -34,9 +43,11 @@
     <TJSSvgFolder
         folder={folderOptions}
         label={localize("autoanimations.variants.secondary") + " " + localize("autoanimations.menus.animation")}
+        animate={$uiAnimation}
     >
         <div slot="summary-end">
             <input
+                on:click|stopPropagation
                 type="checkbox"
                 style="align-self:center"
                 title="Toggle Secondary On/Off"

@@ -19,7 +19,7 @@ export async function thunderwave(handler, animationData, config) {
         ? `autoanimations.templatefx.square.thunderwave.${getPosition.type}`
         : `autoanimations.templatefx.square.thunderwave.${getPosition.type}.${color}`
 
-    const gridSize = canvas.scene.data.grid.size;
+    const gridSize = canvas.scene.dimensions.size;
 
     let aaSeq = await new Sequence(handler.sequenceData)
 
@@ -39,7 +39,7 @@ export async function thunderwave(handler, animationData, config) {
     aaSeq.thenDo(function () {
         Hooks.callAll("aa.animationStart", sourceToken, "no-target")
     })
-    aaSeq.effect()
+    const effect = aaSeq.effect()
         .file(databasePath)
         //.atLocation({ x: templateData.x + (gridSize * 1.5), y: templateData.y + (gridSize * 1.5) })
         .atLocation(template, { cacheLocation: true })
@@ -47,8 +47,13 @@ export async function thunderwave(handler, animationData, config) {
         .rotate(angle)
         .opacity(data.options.opacity)
         .size(3, { gridUnits: true })
-        .elevation(handler.elevation(sourceToken, data.options.isAbsolute, data.options.elevation), { absolute: data.options.isAbsolute })
         .repeats(data.options.repeat, data.options.repeatDelay)
+
+    if (data.options.elevation === 0) {
+        effect.belowTokens(true)
+    } else {
+        effect.elevation(handler.elevation(sourceToken, data.options.isAbsolute, data.options.elevation), { absolute: data.options.isAbsolute })
+    }
 
     if (macro && macro.playWhen === "0") {
         handler.runMacro(macro)
@@ -73,7 +78,7 @@ export async function thunderwave(handler, animationData, config) {
         const yPos = token.y;
         const tempY = template.y;
         const tempX = template.x;
-        const gridSize = canvas.scene.data.grid.size;
+        const gridSize = canvas.scene.dimensions.size;
         let type;
         let angle;
         switch (true) {

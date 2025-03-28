@@ -1,10 +1,14 @@
 <script>
-    import { localize }     from "@typhonjs-fvtt/runtime/svelte/helper";
+    import { getContext }       from "svelte";
 
-    import { TJSSvgFolder, TJSIconButton } from "@typhonjs-fvtt/svelte-standard/component";
-    import { getContext }   from "svelte";
+    import { localize }         from "#runtime/util/i18n";
 
-    import OptionsDialog    from "./optionsInfoDialog.js";
+    import { TJSIconButton }    from "#standard/component/button";
+    import { TJSSvgFolder }     from "#standard/component/folder";
+
+    import OptionsDialog        from "./optionsInfoDialog.js";
+
+    import { gameSettings }     from "#gameSettings";
 
     let tokenAnimations = game.Levels3DPreview?.CONFIG?.tokenAnimations || {
         bow: {},
@@ -21,6 +25,15 @@
 
     //export let animation;
     let { animation} = getContext('animation-data');
+
+    /**
+     * Game setting store to control folder animation.
+     */
+    const uiAnimation = gameSettings.getStore('uiAnimation');
+
+    if (typeof $animation.levels3d.data.autoSize !== "boolean") {
+  $animation.levels3d.data.autoSize = true;
+}
 
     const folder = {
         label: game.i18n.localize("autoanimations.menus.options"),
@@ -42,7 +55,7 @@
           bottom: "-2px",
           color: "rgba(50, 79, 245, 0.5)"
        },
-        onClickPropagate: false
+        clickPropagate: false
     }
 
     $: type = $animation.levels3d.type;
@@ -100,7 +113,7 @@
             </table>
         </div>
     <div class="aa-options-border">
-        <TJSSvgFolder {folder}>
+        <TJSSvgFolder {folder} animate={$uiAnimation}>
             <div slot="summary-end">
                 <TJSIconButton button={optionsInfo} on:click={() => OptionsDialog.show("canvas3d")}/>
             </div>
@@ -237,14 +250,14 @@
                         <div class="flex-row">
                             <div>
                                 <label for=""
-                                    >{localize("autoanimations.menus.mass")}</label
+                                    >{localize("autoanimations.menus.duration")}</label
                                 >
                             </div>
                             <div>
                                 <input
                                     type="number"
-                                    bind:value={$animation.levels3d.data.mass}
-                                    placeholder="100"
+                                    bind:value={$animation.levels3d.data.duration}
+                                    placeholder="3000"
                                     step=".01"
                                 />
                             </div>
@@ -316,6 +329,28 @@
                                 bind:checked={$animation.levels3d.data.rotateTowards}
                             />
                     </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="3dautoSize {animation._data.id}"
+                            >{localize("autoanimations.menus.autoSize")}
+                        </label>
+                        <input
+                            type="checkbox"
+                            id="3dautoSize {animation._data.id}"
+                            bind:checked={$animation.levels3d.data.autoSize}
+                        />
+                </td>
+                <td>
+                    <label for="3donCenter {animation._data.id}"
+                        >{localize("autoanimations.menus.onCenter")}
+                    </label>
+                    <input
+                        type="checkbox"
+                        id="3donCenter {animation._data.id}"
+                        bind:checked={$animation.levels3d.data.onCenter}
+                    />
+            </td>
                 </tr>
                 {#if $animation.levels3d.type === "sprite"}
                 <tr>

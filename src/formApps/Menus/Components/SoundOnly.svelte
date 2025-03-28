@@ -1,5 +1,5 @@
 <script>
-    import { localize } from "@typhonjs-fvtt/runtime/svelte/helper";
+    import { localize } from "#runtime/util/i18n";
     import { getContext }   from "svelte";
 
     //export let animation;
@@ -24,7 +24,7 @@
     <div class="aa-Sound-container">
         <div style="grid-row: 1/2; grid-column: 1/2">
                 <i
-                    class="fas fa-music aa-blue {isValid ? "" : "aa-disableOpacity"}"
+                    class={`fas fa-music aa-blue ${isValid ? "" : "aa-disableOpacity"}`}
                     style="font-size: 1.5em;"
                     title="Play Sound"
                     on:click={() => category.playSound(animation._data[section].sound)}

@@ -1,19 +1,28 @@
 <script>
-    import { localize } from "@typhonjs-fvtt/runtime/svelte/helper";
-    import { TJSSvgFolder } from "@typhonjs-fvtt/svelte-standard/component";
+    import { getContext }   from "svelte";
+
+    import { localize } from "#runtime/util/i18n";
+
+    import { TJSSvgFolder } from "#standard/component/folder";
 
     //import SoundSettings from "./SoundSettings.svelte";
     import VideoSelect from "./VideoSelect.svelte";
     import Sound from "./SoundSettings.svelte"
 
     import { aaReturnWeapons } from "../../../database/jb2a-menu-options.js"
-    import { getContext }   from "svelte";
+
+    import { gameSettings } from "#gameSettings";
 
     //export let animation;
     //export let category;
     //export let idx;
 
     let { animation, category, idx } = getContext('animation-data');
+
+    /**
+     * Game setting store to control folder animation.
+     */
+    const uiAnimation = gameSettings.getStore('uiAnimation');
 
     const folderOptions = {
         styles: {
@@ -37,7 +46,7 @@
 </script>
 
 <div class="aa-sound-border">
-    <TJSSvgFolder folder={folderOptions} label="Range Switch">
+    <TJSSvgFolder folder={folderOptions} label="Range Switch" animate={$uiAnimation}>
         <div
             slot="summary-end"
             style="position:relative; left: 10px"
@@ -126,7 +135,7 @@
                     <tr>
                         <td>
                             <!--Set Return animation-->
-                            <div class="form-group {shouldShow ? "" : "aa-disableOpacity"}">
+                            <div class={`form-group ${shouldShow ? "" : "aa-disableOpacity"}`}>
                                 <label for="OnlyX {animation._data.id}"
                                     >{localize("autoanimations.menus.return")} {localize("autoanimations.menus.animation")}
                                 </label>
@@ -136,7 +145,7 @@
                                     bind:checked={$animation.meleeSwitch.options.isReturning}
                                 />
                             </div>
-                        </td>        
+                        </td>
                     </tr>
                 </table>
             </div>

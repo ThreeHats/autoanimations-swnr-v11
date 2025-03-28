@@ -2,9 +2,9 @@ import AutorecShim from "./formApps/_AutorecMenu/appShim.js";
 import { aaAutorec } from "./mergeScripts/autorec/aaAutoRecList.js";
 import { AnimationState } from "./AnimationState.js";
 
-import { TJSGameSettings } from '@typhonjs-fvtt/svelte-standard/store';
+import { TJSGameSettingsWithUI } from '#standard/store/fvtt/settings';
 
-class AAGameSettings extends TJSGameSettings {
+class AAGameSettings extends TJSGameSettingsWithUI {
    constructor() {
       super('autoanimations');
    }
@@ -208,6 +208,19 @@ class AAGameSettings extends TJSGameSettings {
 
       settings.push({
          namespace,
+         key: 'uiAnimation',
+         options: {
+            name: 'autoanimations.settings.uiAnimation',
+            hint: 'autoanimations.settings.uiAnimationHint',
+            scope: scope.world,
+            config: true,
+            type: Boolean,
+            default: true
+         }
+      });
+
+      settings.push({
+         namespace,
          key: 'debug',
          options: {
             name: 'autoanimations.settings.debugging',
@@ -238,7 +251,7 @@ class AAGameSettings extends TJSGameSettings {
                key: 'CriticalAnimation',
                folder: game.system.title || game.system.name,
                options: {
-                  name: 'autoanimations.settings.CriticalAnimation',
+                  name: 'autoanimations.settings.cypherCritAnim_name',
                   scope: scope.world,
                   type: String,
                   config: true,
@@ -426,7 +439,122 @@ class AAGameSettings extends TJSGameSettings {
             });
             break;
 
+         case 'marvel-multiverse':
+            settings.push({
+               namespace,
+               key: 'playonAttackCore',
+               folder: game.system.title || game.system.name,
+               options: {
+                  name: 'autoanimations.settings.coreonatk_name',
+                  hint: 'autoanimations.settings.coreonatk_hint',
+                  scope: scope.world,
+                  type: Boolean,
+                  default: false,
+                  config: true
+               }
+            });
+            settings.push({
+               namespace,
+               key: 'playonDamageCore',
+               folder: game.system.title || game.system.name,
+               options: {
+                  name: 'autoanimations.settings.coreondmg_name',
+                  hint: 'autoanimations.settings.coreondmg_hint',
+                  scope: scope.world,
+                  type: Boolean,
+                  default: false,
+                  config: true
+               }
+            });
+            break;
+
          case 'dnd5e':
+         
+            settings.push({
+               namespace,
+               key: 'playonDamageCore',
+               folder: game.system.title || game.system.name,
+               options: {
+                  name: 'autoanimations.settings.coreondmg_name',
+                  hint: 'autoanimations.settings.coreondmg_hint',
+                  scope: scope.world,
+                  type: Boolean,
+                  default: false,
+                  config: true,
+               }
+            });
+            
+            settings.push({
+               namespace,
+               key: 'playonmiss',
+               folder: game.system.title || game.system.name,
+               options: {
+                  name: 'autoanimations.settings.midionmiss_name',
+                  hint: 'autoanimations.settings.midionmiss_hint',
+                  scope: scope.world,
+                  type: Boolean,
+                  default: false,
+                  config: true,
+               }
+            });
+            settings.push({
+               namespace,
+               key: 'EnableCritical',
+               folder: game.system.title || game.system.name,
+               options: {
+                  name: 'autoanimations.settings.crithit_name',
+                  hint: 'autoanimations.settings.crithit_hint',
+                  scope: scope.world,
+                  type: Boolean,
+                  default: false,
+                  config: true
+               }
+            });
+
+            settings.push({
+               namespace,
+               key: 'CriticalAnimation',
+               folder: game.system.title || game.system.name,
+               options: {
+                  name: 'autoanimations.settings.crithitAnim_name',
+                  //name: 'Choose A File',
+                  scope: scope.world,
+                  config: true,
+                  type: String,
+                  default: "",
+                  filePicker: 'imagevideo'
+               }
+            });
+
+            settings.push({
+               namespace,
+               key: 'EnableCriticalMiss',
+               folder: game.system.title || game.system.name,
+               options: {
+                  name: 'autoanimations.settings.critmiss_name',
+                  hint: 'autoanimations.settings.critmiss_hint',
+                  scope: scope.world,
+                  type: Boolean,
+                  default: false,
+                  config: true
+               }
+            });
+
+            settings.push({
+               namespace,
+               key: 'CriticalMissAnimation',
+               folder: game.system.title || game.system.name,
+               options: {
+                  name: 'autoanimations.settings.critmissAnim_name',
+                  scope: scope.world,
+                  config: true,
+                  type: String,
+                  default: "",
+                  filePicker: 'imagevideo'
+               }
+            });
+            
+            break;
          case 'sw5e':
             if (game.modules.get('midi-qol')?.active) {
                settings.push({
@@ -599,7 +727,61 @@ class AAGameSettings extends TJSGameSettings {
                });
             }
             break;
-
+         case 'ars':
+      		settings.push({
+                  namespace,
+                  key: 'EnableCritical',
+                  folder: game.system.title || game.system.name,
+                  options: {
+                    name: 'autoanimations.settings.crithit_name',
+                    hint: 'autoanimations.settings.crithit_hint',
+                    scope: scope.world,
+                    type: Boolean,
+                    default: false,
+                    config: true
+                  }
+                });
+                settings.push({
+                  namespace,
+                  key: 'CriticalAnimation',
+                  folder: game.system.title || game.system.name,
+                  options: {
+                    name: 'autoanimations.settings.crithitAnim_name',
+                    //name: 'Choose A File',
+                    scope: scope.world,
+                    config: true,
+                    type: String,
+                    default: '',
+                    filePicker: 'imagevideo'
+                  }
+                });
+                settings.push({
+                  namespace,
+                  key: 'EnableCriticalMiss',
+                  folder: game.system.title || game.system.name,
+                  options: {
+                    name: 'autoanimations.settings.critmiss_name',
+                    hint: 'autoanimations.settings.critmiss_hint',
+                    scope: scope.world,
+                    type: Boolean,
+                    default: false,
+                    config: true
+                  }
+                });
+                settings.push({
+                  namespace,
+                  key: 'CriticalMissAnimation',
+                  folder: game.system.title || game.system.name,
+                  options: {
+                    name: 'autoanimations.settings.critmissAnim_name',
+                    scope: scope.world,
+                    config: true,
+                    type: String,
+                    default: '',
+                    filePicker: 'imagevideo'
+                  }
+                });
+	break;
          case 'pf2e':
             settings.push({
                namespace,
@@ -694,14 +876,38 @@ class AAGameSettings extends TJSGameSettings {
                key: 'autofire',
                folder: game.system.title || game.system.name,
                options: {
-                  name: 'Enable Automatic Repeats',
-                  hint: 'Override repeats for the Primary animation when Automatic or Suppressive fire is enabled for weapon',
+                  name: 'autoanimations.settings.cyberPunkAutoFire',
+                  hint: 'autoanimations.settings.cyberPunkAutoFire_hint',
                   scope: scope.world,
                   type: Boolean,
                   default: true,
                   config: true,
                }
-            });
+            }, {
+               namespace,
+               key: 'canMissTarget',
+               folder: game.system.title || game.system.name,
+               options: {
+                  name: 'autoanimations.settings.cyberPunkCanMiss',
+                  hint: 'autoanimations.settings.cyberPunkCanMiss_hint',
+                  scope: scope.world,
+                  type: Boolean,
+                  default: true,
+                  config: true,
+               }
+            },{
+                namespace,
+                key: 'useElevation',
+                folder: game.system.title || game.system.name,
+                options: {
+                   name: 'autoanimations.settings.cyberPunkElevation',
+                   hint: 'autoanimations.settings.cyberPunkElevation_hint',
+                   scope: scope.world,
+                   type: Boolean,
+                   default: true,
+                   config: true,
+                }
+             });
             break;
          case "TheWitcherTRPG":
             settings.push({
@@ -730,17 +936,22 @@ class AAGameSettings extends TJSGameSettings {
                   config: true,
                }
             });
+            break;
+         case "twodsix":
             settings.push({
                namespace,
-               key: "spell",
+               key: 'playtrigger',
                folder: game.system.title || game.system.name,
                options: {
-                  name: 'autoanimations.settings.coreonatk_name',
-                  hint: 'autoanimations.settings.coreonatk_hint',
+                  name: 'autoanimations.settings.playAnimations',
                   scope: scope.world,
-                  type: Boolean,
-                  default: true,
-                  config: true,
+                  type: String,
+                  choices: {
+                     onAttack: 'autoanimations.settings.attack',
+                     onDamage: 'autoanimations.settings.damage',
+                  },
+                  default: 'onAttack',
+                  config: true
                }
             });
             break;
@@ -765,17 +976,17 @@ class AAGameSettings extends TJSGameSettings {
          case "swn-revised":
             settings.push({
                namespace,
-               key: 'playtrigger',
+               key: "playtrigger",
                folder: game.system.title || game.system.name,
                options: {
-                  name: 'autoanimations.settings.playAnimations',
+                  name: "autoanimations.settings.playAnimations",
                   scope: scope.world,
                   type: String,
                   choices: {
-                     onAttack: 'autoanimations.settings.attack',
-                     onDamage: 'autoanimations.settings.damage',
+                     onAttack: "autoanimations.settings.swadeTraitRolls",
+                     onDamage: "autoanimations.settings.damage"
                   },
-                  default: 'onAttack',
+                  default: "onDamage",
                   config: true
                }
             });

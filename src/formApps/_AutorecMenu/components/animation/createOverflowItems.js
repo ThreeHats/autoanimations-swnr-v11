@@ -1,4 +1,5 @@
-import { TJSDialog } from "@typhonjs-fvtt/runtime/svelte/application";
+import { TJSDialog } from "#runtime/svelte/application";
+
 import AdvancedAutorec from "./advancedSearch/AdvancedAutorec.svelte";
 
 /**
@@ -10,13 +11,12 @@ import AdvancedAutorec from "./advancedSearch/AdvancedAutorec.svelte";
  *
  * @returns {object[]} Overflow menu items.
  */
-export function createOverflowItems(animation, category)
-{
+export function createOverflowItems(animation, category) {
    return [
       {
          label: "autoanimations.menus.duplicate",
          icon: "far fa-clone",
-         onPress: () => category.duplicateEntry(animation.id)
+         onPress: () => category.duplicateEntry(animation.id),
       },
       {
          label: "Delete", // TODO: localize,
@@ -28,33 +28,35 @@ export function createOverflowItems(animation, category)
                title: "Delete Animation?",
                content: `Are you sure you want to delete: ${label}`,
                draggable: false,
-               modal: true
-            })
+               modal: false,
+            });
 
-            if (result) { category.deleteEntry(animation.id) }
-         }
+            if (result) {
+               category.deleteEntry(animation.id);
+            }
+         },
       },
       {
          label: "Metadata",
          icon: "fas fa-heart-pulse",
-         onPress: () => animation.getSource()
+         onPress: () => animation.getSource(),
       },
       {
          label: "Advanced",
          icon: "fab fa-searchengin",
          onPress: async () => {
             new TJSDialog({
-               modal: true,
+               modal: false,
                title: "Advanced Features: " + `${animation._data.label}`,
                content: {
-                   class: AdvancedAutorec,
-                   props: {
-                       animation
-                   },
+                  class: AdvancedAutorec,
+                  props: {
+                     animation,
+                  },
                },
                defaultYes: false,
-           }).render(true);
-        }
-      }
+            }).render(true);
+         },
+      },
    ];
 }

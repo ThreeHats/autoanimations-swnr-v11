@@ -1,19 +1,31 @@
 <script>
-    import { localize } from "@typhonjs-fvtt/runtime/svelte/helper";
-    import { TJSSvgFolder, TJSIconButton } from "@typhonjs-fvtt/svelte-standard/component";
-    import { getContext }   from "svelte";
+    import { getContext }       from "svelte";
 
-    import SectionHeader    from "../Components/SectionHeader.svelte";
-    import VideoSelect      from "../Components/VideoSelect.svelte";
-    import SoundSettings    from "../Components/SoundSettingsNested.svelte";
-    import Opacity          from "./inputComponents/Opacity.svelte";
-    import Elevation        from "./inputComponents/Elevation.svelte";
-    import OptionsDialog    from "../Components/options/optionsInfoDialog.js";
-    import * as settings    from "../Components"
+    import { localize }         from "#runtime/util/i18n";
+
+    import { TJSIconButton }    from "#standard/component/button";
+    import { TJSSvgFolder }     from "#standard/component/folder";
+
+    import SectionHeader        from "../Components/SectionHeader.svelte";
+    import VideoSelect          from "../Components/VideoSelect.svelte";
+    import SoundSettings        from "../Components/SoundSettingsNested.svelte";
+    import Opacity              from "./inputComponents/Opacity.svelte";
+    import Elevation            from "./inputComponents/Elevation.svelte";
+    import OptionsDialog        from "../Components/options/optionsInfoDialog.js";
+    import * as settings        from "../Components"
+
+    import { gameSettings }     from "#gameSettings";
+
     //export let animation;
     //export let category;
     //export let idx;
+
     let { animation, category, idx } = getContext('animation-data');
+
+    /**
+     * Game setting store to control folder animation.
+     */
+    const uiAnimation = gameSettings.getStore('uiAnimation');
 
     const title = "Projectile to Template";
 
@@ -58,7 +70,7 @@
         title="Projectile"
     />
     <div class="aa-options-border">
-        <TJSSvgFolder {folder}>
+        <TJSSvgFolder {folder} animate={$uiAnimation}>
             <div slot="summary-end">
                 <TJSIconButton button={optionsInfo} on:click={() => OptionsDialog.show("preset", "proToTemp")}/>
             </div>
@@ -172,9 +184,10 @@
 </div>
 
 <div class="aa-section-border">
-    <TJSSvgFolder folder={preExplode}>
+    <TJSSvgFolder folder={preExplode} animate={$uiAnimation}>
         <div slot="summary-end">
             <input
+                on:click|stopPropagation
                 type="checkbox"
                 style="align-self:center"
                 title="Toggle Source FX On/Off"
@@ -188,7 +201,7 @@
             title="Pre Explosion"
             />
             <div class="aa-options-border">
-                <TJSSvgFolder {folder}>
+                <TJSSvgFolder {folder} animate={$uiAnimation}>
                     <table class="d">
                         <tr>
                             <td>
@@ -297,7 +310,7 @@
                                 </div>
                             </td>
                             <td></td>
-                        </tr>        
+                        </tr>
                     </table>
                 </TJSSvgFolder>
             </div>
@@ -313,7 +326,7 @@
         title="Primary Explosion"
     />
     <div class="aa-options-border">
-        <TJSSvgFolder {folder}>
+        <TJSSvgFolder {folder} animate={$uiAnimation}>
             <table class="d">
                 <tr>
                     <td>
@@ -422,17 +435,18 @@
                         </div>
                     </td>
                     <td></td>
-                </tr>    
+                </tr>
             </table>
         </TJSSvgFolder>
     </div>
     <SoundSettings section="data" section02="explosion" />
 </div>
 <div class="aa-section-border">
-    <TJSSvgFolder folder={afterImage}>
+    <TJSSvgFolder folder={afterImage} animate={$uiAnimation}>
         <SectionHeader title="After Image" />
         <div slot="summary-end">
             <input
+                on:click|stopPropagation
                 type="checkbox"
                 style="align-self:center"
                 title="Toggle Source FX On/Off"
