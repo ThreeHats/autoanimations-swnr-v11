@@ -49,35 +49,9 @@ jobs:
       # Create a zip file with all files required by the module to add to the release
       - name: Create Module Archive
         run: |
-          npm install adm-zip
-          node -e "
-            const AdmZip = require('adm-zip');
-            const fs = require('fs');
-            const path = require('path');
-            const zip = new AdmZip();
-            
-            // Add regular files
-            ['module.json', 'index.js', 'index.js.map', 'style.css'].forEach(file => {
-              if (fs.existsSync(file)) zip.addLocalFile(file);
-            });
-            
-            // Add directories
-            ['assets', 'dist', 'lang', 'packs', 'animationPNG', 'htmlTemplate'].forEach(dir => {
-              if (fs.existsSync(dir)) zip.addLocalFolder(dir, dir);
-            });
-            
-            // Add sound files with store-only option
-            if (fs.existsSync('sounds')) {
-              zip.addLocalFolder('sounds', 'sounds', file => true, { store: true });
-            }
-            
-            // Add additional files
-            ['LICENSE', 'AUTHORS', 'README.md'].forEach(file => {
-              if (fs.existsSync(file)) zip.addLocalFile(file);
-            });
-            
-            zip.writeZip('module.zip');
-          "
+          sudo apt-get update && sudo apt-get install -y p7zip-full
+          7z a -tzip -mx=0 module.zip module.json index.js index.js.map style.css assets/ dist/ lang/ packs/ animationPNG/ htmlTemplate/ LICENSE AUTHORS README.md
+          7z a -tzip -mx=0 module.zip ./sounds/
 
       # Create a release for this specific version
       - name: Update Release with Files
