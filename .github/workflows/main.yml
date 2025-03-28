@@ -50,7 +50,7 @@ jobs:
       - name: Create Module Archive
         run: |
           sudo apt-get update && sudo apt-get install -y p7zip-full
-          7z a -tzip -mx=0 module.zip module.json index.js index.js.map style.css assets/ dist/ lang/ packs/ animationPNG/ htmlTemplate/ LICENSE AUTHORS README.md
+          7z a -tzip -mx=0 module.zip module.json assets/ dist/ lang/ animationPNG/ htmlTemplate/ LICENSE README.md
           7z a -tzip -mx=0 module.zip ./sounds/
 
       # Create a release for this specific version
