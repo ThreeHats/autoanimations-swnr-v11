@@ -46,8 +46,13 @@ jobs:
       # Build distribution.
       - run: npm run build
 
-      # Create a zip file with all files required by the module to add to the release
-      - run: zip -0 -r ./module.zip module.json index.js index.js.map style.css assets/ dist/ lang/ packs/ sounds/ animationPNG/ htmlTemplate/ LICENSE AUTHORS README.md
+      # Install 7z
+      - name: Install 7z
+        run: sudo apt-get install p7zip-full
+
+      # Create Module Archive  
+      - name: Create Module Archive  
+        run: 7z a -tzip module.zip module.json index.js index.js.map style.css assets/ dist/ lang/ packs/ sounds/ animationPNG/ htmlTemplate/ LICENSE AUTHORS README.md
 
       # Create a release for this specific version
       - name: Update Release with Files
